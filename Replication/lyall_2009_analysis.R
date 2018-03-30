@@ -173,7 +173,7 @@ ggsave(fig, file = "output/figures/lyall-log2.pdf", width = 5, height=4)
 dp = data.frame(cpt.violence$Z, treat = as.numeric(cpt.violence$T=="1") )
 
 rpart0 = rpart(treat~(.),data=dp)
-rpart0 = prune(rpart0,cp=.025) # prune the tree for display perpuses.
+rpart0 = prune(rpart0,cp=.025) # prune the tree for display purposes.
 rpart.data <- dendro_data(rpart0)
 
 dp1 = rpart.data$labels
@@ -207,9 +207,9 @@ dp$nn.elev.pop = dp$lelev*dp$lnn*dp$lpop2000
 # wilcox.test(dp$nn.elev.pop[dp$treat==0],dp$nn.elev.pop[dp$treat==1])
 # t.test(dp$nn.elev.pop[dp$treat==0],dp$nn.elev.pop[dp$treat==1])
 
-summary(lm1 <- lm(treat ~ lelev + lpop2000 +  lnn, data = dp))
-summary(lm2 <- lm(treat ~ nn.elev + lelev + lpop2000 +  lnn, data = dp))
-summary(lm3 <- lm(treat ~ nn.elev + nn.elev.pop + lelev + lpop2000 +  lnn, data = dp))
+summary(lm1 <- glm(treat ~ lelev + lpop2000 +  lnn, data = dp, family = binomial(link ="logit")))
+summary(lm2 <- glm(treat ~ nn.elev + lelev + lpop2000 +  lnn, data = dp, family = binomial(link ="logit")))
+summary(lm3 <- glm(treat ~ nn.elev + nn.elev.pop + lelev + lpop2000 +  lnn, data = dp, family = binomial(link ="logit")))
 
 stargazer(lm1,lm2,lm3,
           covariate.labels = c("Log distance to Neighbor $\\times$ Log-Elevation","Log distance to Neighbor   $\\times$ Log-Elevation  $\\times$ Log-Population",
@@ -254,7 +254,7 @@ p = p+theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ggsave(p, file= "output/figures/rf_variable_importance.pdf", width = 4, height = 5)
 
 ######################################
-# Energy and cross-match tests
+# Energy, Hotelling and cross-match tests
 ######################################
 
 ### Checking balance using multivariate tests:
@@ -269,7 +269,9 @@ violence.analysis2 = cpt.analysis(
 
 cat("Energy test P-value: ", violence.analysis2$energy$p.value,"\n")
 cat("Crossmatch test P-value: ", violence.analysis2$crossmatch$approxpval,"\n")
-
+cat("Hotelling test P-value: ",  
+    hotelling.test(cpt.violence$Z[as.numeric(cpt.violence$T)==1,], 
+                   cpt.violence$Z[as.numeric(cpt.violence$T)!=1,])$pval,"\n")
 
 
 

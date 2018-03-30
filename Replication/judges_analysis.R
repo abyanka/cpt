@@ -96,10 +96,6 @@ ggsave(judge_group_forest, file = "output/figures/judge_group_forest.pdf")
 ### Assignment to a specific judge
 ##################################################################
 
-# CPT (for Judge calendar 2)
-cpt.result2 <- cpt(Z=Z,T= 1*(tr=="2"), class.methods = "forest", metric = "logscore")
-print( cpt.result2$pval )
-
 pv.lrt <- pv.lrt2 <- coef.number <- coef.number2 <- rep(NA,9) 
 for (i in c(1:9)){
   tr.judge <- (tr==paste(i))*1
@@ -185,7 +181,7 @@ ggsave(fig_type1, file = "output/figures/type1_judge_lrt.pdf")
 ### The case of Judge calendar 2 and over-fitting
 ##################################################################
 
-tr.judge <- (tr==2)*1
+tr.judge <- (tr==1)*1
 glm.fit <- glm(tr.judge~(.),data=data.frame(Z))
 glm.fit2 <- glm(tr.judge~(.)^2,data=data.frame(Z))
 
@@ -213,8 +209,8 @@ fig.box1 <- ggplot(dp,aes(y=ps,x=tr,fill=tr))+geom_boxplot()+
   #guides(fill=guide_legend(title="Treatment group: "),shape=guide_legend(title="Test type: "))+ # adding legend title
   theme(legend.position="") # legend position
   
-  ps.ks1 <- round(ks.test(glm.fit$fit[tr.judge==1],glm.fit$fit[tr.judge==0])$p.value,dig=5)
-  fig.box1 = fig.box1+ annotate("text", x = 1.5, y = 0.25, label = paste("KS P-value: ",ps.ks1),col="black")
+#  ps.ks1 <- round(ks.test(glm.fit$fit[tr.judge==1],glm.fit$fit[tr.judge==0])$p.value,dig=5)
+#  fig.box1 = fig.box1+ annotate("text", x = 1.5, y = 0.25, label = paste("KS P-value: ",ps.ks1),col="black")
   
 ggsave(fig.box1, file = "output/figures/fig_pscore_overfit1.pdf")
 
@@ -240,8 +236,8 @@ fig.box2 <- ggplot(dp,aes(y=ps,x=tr,fill=tr))+geom_boxplot()+
   #guides(fill=guide_legend(title="Treatment group: "),shape=guide_legend(title="Test type: "))+ # adding legend title
   theme(legend.position="") # legend position
   
-ps.ks2 <- round(ks.test(glm.fit2$fit[tr.judge==1],glm.fit2$fit[tr.judge==0])$p.value,dig=5)
-fig.box2 = fig.box2+ annotate("text", x = 1.5, y = 0.8, label = paste("KS P-value: ",ps.ks2),col="black")
+#ps.ks2 <- round(ks.test(glm.fit2$fit[tr.judge==1],glm.fit2$fit[tr.judge==0])$p.value,dig=5)
+#fig.box2 = fig.box2+ annotate("text", x = 1.5, y = 0.8, label = paste("KS P-value: ",ps.ks2),col="black")
 ggsave(fig.box2, file = "output/figures/fig_pscore_overfit2.pdf")
 
 save.image(file = "green_winik_2010_results.rda")
