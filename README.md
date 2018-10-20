@@ -10,7 +10,7 @@ To replicate the analyses:
 2. Ensure that all other required R packages are installed (see list below)
 3. Change into the Replication folder and run script_run.sh
 
-On a 4-core i7, the code takes about 1 day to run.
+On a 6-core Ryzen CPU, the code takes about 1 week to run.
 
 The required R packages are:
 
