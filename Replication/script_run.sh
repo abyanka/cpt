@@ -9,7 +9,6 @@ R CMD BATCH --vanilla '--args 1000' lyall_2009_analysis.R
 # performs preliminary computationally intensive estimation
 # First argument is number of random permutations, second argument is the number of different window sizes to evaluate at.
 R CMD BATCH --vanilla '--args 1000 80' MPs.R 
-
 # less computationally intensive estimation and figure/tables
 R CMD BATCH --vanilla mps_analysis.R 
 
@@ -22,6 +21,12 @@ R CMD BATCH --vanilla '--args 1000' community_college_analysis.R
 ### Sims
 R CMD BATCH --vanilla '--args 500 400' sims.R
 R CMD BATCH --vanilla simplots.R
+R CMD BATCH --vanilla '--args 500 400' sims2.R
+R CMD BATCH --vanilla simplots2.R
+R CMD BATCH --vanilla logisticsims.R
+
+### Timing
+R CMD BATCH --vanilla timing.R
 
 cp *.Rout output
 cp *.rda output

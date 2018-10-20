@@ -106,27 +106,26 @@ range = c(
           )
 
 fig<-ggplot(data.frame(statistic.null=teststat.null),aes(x=statistic.null))+
-  xlim(range)+
-  ylim(0,200)+
-  geom_histogram(
-    fill="grey",
-    breaks=seq(range[1],range[2],length=40)
-  )+
+  xlim(-1.02,-.5)+
+  ylim(0,14)+
+  geom_density(alpha=0.75, fill="grey")+
   labs(
     title="Classifier: Random forest \n",
     x="\n Test statistic under the null",
-    y="\n Frequency"
+    y=" "
   )+
   theme_bw()+
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank() )+
   theme(panel.border = element_blank(), 
         axis.line.x = element_line(colour = "black"),
-        axis.line.y = element_line(colour = "black"),
+        axis.line.y = element_blank(),
         axis.text = element_text(size = 12),
+        axis.text.y = element_blank(),        
+        axis.ticks.y = element_blank(),
         axis.title = element_text(size = 12)
   )+
   geom_vline(xintercept=teststat.obs,lty=1,col="black",size=1)+
-  annotate("text", x = -.72, y = 160, label = "Observed test statistic",col="black", size = 5)
+  annotate("text", x = -.72, y = 12, label = "Observed test statistic",col="black", size = 5)
 ggsave(fig, file = "output/figures/lyall-forest.pdf", width = 5, height=4)
 
 
@@ -141,29 +140,29 @@ range = c(
           )
 
 fig<-ggplot(data.frame(statistic.null=teststat.null),aes(x=statistic.null))+
-  xlim(range)+
-  ylim(0,200)+
-  geom_histogram(
-    fill="grey",
-    breaks=seq(range[1],range[2],length=40)
-  )+
+  xlim(-.68, -.52)+
+  ylim(0,40)+
+  geom_density(alpha=0.75, fill="grey")+
   labs(
     title="Classifier: Logistic regression with interactions \n",
     x="\n Test statistic under the null",
-    y="\n Frequency"
+    y=" "
   )+
   theme_bw()+
   theme(panel.grid.major.x = element_blank(), panel.grid.minor.x = element_blank() )+
   theme(panel.border = element_blank(), 
         axis.line.x = element_line(colour = "black"),
-        axis.line.y = element_line(colour = "black"),
+        axis.line.y = element_blank(),
         axis.text = element_text(size = 12),
+        axis.text.y = element_blank(),     
+        axis.ticks.y = element_blank(),
         axis.title = element_text(size = 12)
   )+
   geom_vline(xintercept=teststat.obs,lty=1,col="black",size=1)+
-  annotate("text", x = -.578, y = 160, label = "Observed test statistic",col="black", size=5)
+  annotate("text", x = -.578, y = 37, label = "Observed test statistic",col="black", size=5)
 
 ggsave(fig, file = "output/figures/lyall-log2.pdf", width = 5, height=4)
+
 
 ##############################################
 # Tree models: decomposing the difference in 
@@ -177,14 +176,20 @@ rpart0 = prune(rpart0,cp=.025) # prune the tree for display purposes.
 rpart.data <- dendro_data(rpart0)
 
 dp1 = rpart.data$labels
+topline=data.frame(x=dp1$x[1], xend=dp1$x[1], y=dp1$y[1], yend=dp1$y[1]+.01)
 dp1$label = as.character(dp1$label)
 dp1$label = gsub("lnn","Log distance to Neighbor",dp1$label)
 dp1$label = gsub("lelev","Log-Elevation",dp1$label)
 dp1$label = gsub("lpop2000","Log-Population",dp1$label)
 dp1$y = dp1$y + 0.005
+dp1$x[1] = dp1$x[1] - .95
+dp1$x[2] = dp1$x[2] - .65
+dp1$x[3] = dp1$x[3] - .63
+dp1$x[4] = dp1$x[4] - .9
+dp1$x[5] = dp1$x[5] - .65
 
 dp2 = rpart.data$leaf_labels
-dp2$y = dp2$y - 0.005
+dp2$y = dp2$y - 0.01
 dp2$label = round(as.numeric(as.character(dp2$label)), dig=3)
 
 fig = ggplot() +
@@ -192,8 +197,10 @@ fig = ggplot() +
   #geom_point(data=rpart.data$segments, aes(x=xend, y=yend), size=4, alpha = 0.6, col = "grey")+
   geom_text(data=dp1, aes(x=x, y=y, label=label)) +
   geom_text(data=dp2, aes(x=x, y=y, label=label),size = 5) +
-  theme_dendro()
-ggsave(fig, file = "output/figures/fig_DIV_tree1.pdf", width = 5, height=4)
+  geom_segment(data=topline, aes(x=x,y=y,xend=xend,yend=yend))+
+  theme_dendro()+
+  ylim(dp1$y[5]-.05, dp1$y[1]+.01)
+ggsave(fig, file = "output/figures/fig_DIV_tree1.pdf", width = 7.5, height=4)
 
 
 dp$nn.elev = dp$lelev*dp$lnn
@@ -272,6 +279,48 @@ cat("Crossmatch test P-value: ", violence.analysis2$crossmatch$approxpval,"\n")
 cat("Hotelling test P-value: ",  
     hotelling.test(cpt.violence$Z[as.numeric(cpt.violence$T)==1,], 
                    cpt.violence$Z[as.numeric(cpt.violence$T)!=1,])$pval,"\n")
+
+
+##############################################
+# 2d countour plots
+##############################################
+
+dp = as.data.frame(cpt.violence$Z)
+
+df_pop_ele = data.frame(x=dp$lpop2000, y=dp$lelev, z=as.factor(cpt.violence$T==1)) 
+df_pop_lnn = data.frame(x=dp$lpop2000, y=dp$lnn,   z=as.factor(cpt.violence$T==1)) 
+df_ele_lnn = data.frame(x=dp$lelev,    y=dp$lnn,   z=as.factor(cpt.violence$T==1)) 
+
+df = df_pop_ele
+p = ggplot(df, aes(x = x, y = y)) + 
+  stat_density_2d(geom = "density2d", aes(alpha = ..level.., colour=z), size=1.5) +
+  theme_minimal()+
+  theme(axis.title = element_text(size = 15), axis.text = element_text(size = 12))  +
+  guides(colour = guide_legend(title = "Bombing status"), size=FALSE, alpha=FALSE)+  
+  labs(x="Log Population", y = "Log Elevation")
+ggsave(p, file= "output/figures/contour_pop_ele.pdf", width = 5, height = 5)
+
+df = df_pop_lnn
+p = ggplot(df, aes(x = x, y = y)) + 
+  stat_density_2d(geom = "density2d", aes(alpha = ..level.., colour=z), size=1.5) +
+  theme_minimal()+
+  theme(axis.title = element_text(size = 15), axis.text = element_text(size = 12))  +
+  guides(colour = guide_legend(title = "Bombing status"), size=FALSE, alpha=FALSE)+  
+  labs(x="Log Population", y = "Log Distance to Neighbor")
+ggsave(p, file= "output/figures/contour_pop_lnn.pdf", width = 5, height = 5)
+
+df = df_ele_lnn
+p = ggplot(df, aes(x = x, y = y)) + 
+  stat_density_2d(geom = "density2d", aes(alpha = ..level.., colour=z), size=1.5) +
+  theme_minimal()+
+  theme(axis.title = element_text(size = 15), axis.text = element_text(size = 12))  +
+  guides(colour = guide_legend(title = "Bombing status"), size=FALSE, alpha=FALSE)+  
+  labs(x="Log Elevation", y = "Log Distance to Neighbor")
+ggsave(p, file= "output/figures/contour_ele_lnn.pdf", width = 5, height = 5)
+
+
+
+
 
 
 

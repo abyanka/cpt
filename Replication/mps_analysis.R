@@ -41,7 +41,7 @@ dp = as.data.frame(getresults(MPs.analysis))
 df=gather(dp[,-1], value = pv ,key = test.type, -observations )
 
 p.cpt <- ggplot(df,aes(x=observations,y=pv,col=test.type, shape=test.type))+
-  geom_point()+geom_line()+
+  geom_point(size=2.5)+geom_line()+
   labs(
     title = "",
     y = "P-value \n" ,
